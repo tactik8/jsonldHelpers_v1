@@ -31,11 +31,11 @@ export class Thing {
         this._record = h.setValues(this._record, propertyID, value)
     }
 
-    get baseUrl(){
+    get baseUrl() {
         return process.env.baseUrl
     }
 
-    set baseUrl(value){
+    set baseUrl(value) {
         process.env.baseUrl = value
     }
 
@@ -91,15 +91,15 @@ export class Thing {
     }
 
     // Static
-    
-    static get baseUrl(){
+
+    static get baseUrl() {
         return process.env.baseUrl
     }
 
-    static set baseUrl(value){
+    static set baseUrl(value) {
         process.env.baseUrl = value
     }
-    
+
     static getValue(record, propertyID) {
         return h.getValue(record, propertyID)
     }
@@ -113,7 +113,7 @@ export class Thing {
         return h.setValues(record, propertyID, value)
     }
 
-    static flatten(value){
+    static flatten(value) {
         return h.flatten(value)
     }
 
@@ -147,6 +147,20 @@ export class Action extends Thing {
     setFailed(error) {
         this._record = setFailed(rthis._ecord, error)
     }
+
+    get isPotential() {
+        return this.actionStatus == "PotentialActionStatus"
+    }
+    get isActive() {
+        return this.actionStatus == "ActiveActionStatus"
+    }
+    get isCompleted() {
+        return this.actionStatus == "CompletedActionStatus"
+    }
+    get isFailed() {
+        return this.actionStatus == "FailedActionStatus"
+    }
+
 
     get object() {
         return h.getValue(this._record, "object")
@@ -207,24 +221,38 @@ export class Action extends Thing {
 
     // Static
     static setPotential(record) {
-        this._record = setPotential(record)
+        return setPotential(record)
     }
 
     static setActive(record) {
-        this._record = setActive(record)
+        return setActive(record)
     }
 
     static setCompleted(record, result) {
-        this._record = setCompleted(record, result)
+        return setCompleted(record, result)
     }
 
     static setFailed(record, error) {
-        this._record = setFailed(record, error)
+        return setFailed(record, error)
+    }
+
+    static isPotential(record) {
+        return h.getValue(record?.record || record, actionStatus) == "PotentialActionStatus"
+    }
+    static isActive(record) {
+        return h.getValue(record?.record || record, actionStatus) == "ActiveActionStatus"
+    }
+    static isCompleted(record) {
+        return h.getValue(record?.record || record, actionStatus) == "CompletedActionStatus"
+    }
+    static isFailed(record) {
+        return h.getValue(record?.record || record, actionStatus) == "FailedActionStatus"
     }
 
 }
 
 function setPotential(record) {
+    record = record?.record || record
     h.setValue(record, 'actionStatus', 'PotentialActionStatus')
     h.setValue(record, 'timeStart', undefined)
     h.setValue(record, 'timeEnd', undefined)
@@ -234,13 +262,15 @@ function setPotential(record) {
 }
 
 function setActive(record) {
+    record = record?.record || record
     h.setValue(record, 'actionStatus', 'ActiveActionStatus')
-    h.setValue(record, 'timeStart', undefined)
+    h.setValue(record, 'timeStart', new Date())
     h.setValue(record, 'timeEnd', undefined)
     return record
 }
 
 function setCompleted(record, result) {
+    record = record?.record || record
     h.setValue(record, 'actionStatus', 'CompletedActionStatus')
     h.setValue(record, 'timeStart', h.getValue(record, 'timeStart') || new Date())
     h.setValue(record, 'timeEnd', new Date())
@@ -249,6 +279,7 @@ function setCompleted(record, result) {
 }
 
 function setFailed(record, error) {
+    record = record?.record || record
     h.setValue(record, 'actionStatus', 'FailedActionStatus')
     h.setValue(record, 'timeStart', h.getValue(record, 'timeStart') || new Date())
     h.setValue(record, 'timeEnd', new Date())
@@ -261,18 +292,18 @@ function setFailed(record, error) {
  * @param {} value 
  * @returns 
  */
-function classToRecord(value){
+function classToRecord(value) {
 
-    if(Array.isArray(value)){
+    if (Array.isArray(value)) {
         return value.map(x => classToRecord(x))
     }
 
-    if(value?.['_isThingClass'] == true){
+    if (value?.['_isThingClass'] == true) {
         value = value._record
     }
 
-    if(value?.['@type'] || value?.['@id']){
-        for(let k of Object.keys(value)){
+    if (value?.['@type'] || value?.['@id']) {
+        for (let k of Object.keys(value)) {
             value[k] = classToRecord(value[k])
         }
     }
