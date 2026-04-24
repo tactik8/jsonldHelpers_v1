@@ -102,6 +102,18 @@ export function set(record, path, value) {
 }
 
 
+/**
+ * Flattens
+ * @param {*} record 
+ */
+export function flatten(value){
+
+   
+
+
+}
+
+
 
 
 /**
