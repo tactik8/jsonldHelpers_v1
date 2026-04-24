@@ -9,4 +9,7 @@ export * from './dotHelpers.js'
 export * from './things.js'
 export * from './apiClient.js'
 
-export default {...helpers, ...thing, ...apiClient};
+export default { ...helpers, ...thing, ...apiClient };
+
+
+

@@ -35,7 +35,7 @@ async function apiGet(headers, baseUrl, path, params) {
 
     let action = new thing.Action()
     action.name = "API Get"
-    action.instrument = new WebAPI(baseUrl)
+    action.instrument = new thing.WebAPI(baseUrl)
 
     try {
 
@@ -77,7 +77,7 @@ async function apiPost(headers, baseUrl, path, data) {
 
     let action = new thing.Action()
     action.name = "API Post"
-    action.instrument = new WebAPI(baseUrl)
+    action.instrument = new thing.WebAPI(baseUrl)
 
     try {
 

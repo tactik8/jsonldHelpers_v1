@@ -310,6 +310,20 @@ function setFailed(record, error) {
     return record
 }
 
+
+
+
+export default  {
+    Thing,
+    Action,
+    WebAPI,
+    WebSite,
+    WebPage
+
+}
+
+
+
 /**
  * Convert a class Thing type object to record
  * @param {} value 
