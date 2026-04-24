@@ -12,6 +12,14 @@ export class DB {
         this._store = new Map()
     }
 
+    toString(){
+        return "JSONLD Array items: " + String(this.length())
+    }
+
+    toJSON(){
+        return JSON.stringify(this.records, null, 4)
+    }
+
     get(record_id) {
         return getRecord(this._store, record_id, true)
     }
@@ -50,6 +58,13 @@ export class DB {
         return flatten(value)
     }
 
+    static getValue(record, propertyID){
+        return getValue(record, propertyID)
+    }
+    static getValues(record, propertyID){
+        return getValues(record, propertyID)
+    }
+
     static get dot() {
         return dot
     }
@@ -62,7 +77,11 @@ export default {
     clean,
     evaluate,
     expand, 
-    flatten
+    flatten,
+    getValue,
+    getValues,
+    setValue,
+    setValues
 }
 
 
@@ -147,6 +166,42 @@ export function testRecord(name, no = 0, depth = 1) {
 
 
 
+
+// -----------------------------------------------------------------------
+// Utility
+// -----------------------------------------------------------------------
+
+function toArray(value){
+
+    return (Array.isArray(value) && typeof value != "string") ? value : [value]
+
+}
+
+
+export function getValue(record, propertyID){
+    let values = dot.get(record, propertyID)
+    values = toArray(values)
+    return values?.[0]
+}
+
+export function setValue(record, propertyID, value){
+    
+    value = toArray(value)?.[0]
+    dot.set(record, propertyID, value)
+    return record
+}
+
+export function getValues(record, propertyID){
+    let values = dot.get(record, propertyID)
+    values = toArray(values)
+    return values
+}
+
+export function setValues(value){
+    value = toArray(value)
+    dot.set(record, propertyID, value)
+    return record
+}
 
 
 // -----------------------------------------------------------------------

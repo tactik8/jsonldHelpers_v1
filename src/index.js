@@ -1,8 +1,9 @@
-import * as helpers from './jsonldHelpers.js';
+import * as helpers from './jsonldBase.js';
 import * as dot from './dotHelpers.js';
+import * as thing from './things.js'
 
-
-export * from './jsonldHelpers.js'
+export * from './jsonldBase.js'
 export * from './dotHelpers.js'
+export * from './things.js'
 
-export default helpers;
+export default {...helpers, ...thing};
