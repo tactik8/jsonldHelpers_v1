@@ -10,8 +10,10 @@ export class Thing {
         this._isThingClass = true
         this._record = value || {}
         this.record_type = "Thing"
-        this.record_id = idhelper.get(this.record)
+        this.record_id = idhelper.get(this.record, this.baseUrl)
     }
+
+
 
     toString() {
         return `${this._record_type}/${this._record_id}`
@@ -27,6 +29,14 @@ export class Thing {
 
     set(propertyID, value) {
         this._record = h.setValues(this._record, propertyID, value)
+    }
+
+    get baseUrl(){
+        return process.env.baseUrl
+    }
+
+    set baseUrl(value){
+        process.env.baseUrl = value
     }
 
     get record() {
@@ -63,7 +73,7 @@ export class Thing {
     }
     set url(value) {
         this._record = h.setValue(this._record, "url", value)
-        this.record_id = idhelper.get(this._record)
+        this.record_id = idhelper.get(this._record, this.baseUrl)
     }
 
     get description() {
@@ -81,6 +91,15 @@ export class Thing {
     }
 
     // Static
+    
+    static get baseUrl(){
+        return process.env.baseUrl
+    }
+
+    static set baseUrl(value){
+        process.env.baseUrl = value
+    }
+    
     static getValue(record, propertyID) {
         return h.getValue(record, propertyID)
     }
