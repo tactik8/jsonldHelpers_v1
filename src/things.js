@@ -10,6 +10,7 @@ export class Thing {
         this._isThingClass = true
         this._record = value || {}
         this.record_type = "Thing"
+        this.record_id = idhelper.get(this.record)
     }
 
     toString() {
