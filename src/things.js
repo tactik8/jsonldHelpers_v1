@@ -120,6 +120,29 @@ export class Thing {
 }
 
 
+export class WebPage extends Thing {
+    constructor(url) {
+        super()
+        this.record_type = "WebPage"
+        this.url = url
+    }
+}
+
+export class WebSite extends Thing {
+    constructor(url) {
+        super()
+        this.record_type = "WebSite"
+        this.url = url
+    }
+}
+
+export class WebAPI extends Thing {
+    constructor(url) {
+        super()
+        this.record_type = "WebAPI"
+        this.url = url
+    }
+}
 
 export class Action extends Thing {
     constructor(value) {
