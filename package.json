@@ -1,5 +1,5 @@
 {
-  "name": "jsonldHelpers",
+  "name": "jsonld_helpers",
   "version": "0.0.1",
   "description": "",
   "main": "dist/index.js",
