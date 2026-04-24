@@ -1,10 +1,15 @@
 
+import { v4 as uuidv4 } from 'uuid';
+
+import * as idhelper from './recordIdHelpers.js'
+
 import * as h from './jsonldBase.js'
 
 export class Thing {
     constructor(value) {
         this._isThingClass = true
         this._record = value || {}
+        this.record_type = "Thing"
     }
 
     toString() {
@@ -57,6 +62,7 @@ export class Thing {
     }
     set url(value) {
         this._record = h.setValue(this._record, "url", value)
+        this.record_id = idhelper.get(this._record)
     }
 
     get description() {
@@ -98,6 +104,7 @@ export class Thing {
 export class Action extends Thing {
     constructor(value) {
         super(value)
+        this.record_type = "Action"
         this.setActive()
     }
 
@@ -246,7 +253,7 @@ function classToRecord(value){
 
     if(value?.['@type'] || value?.['@id']){
         for(let k of Object.keys(value)){
-            value[k] = classToRecord[k]
+            value[k] = classToRecord(value[k])
         }
     }
 
