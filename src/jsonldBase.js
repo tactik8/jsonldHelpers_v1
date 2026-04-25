@@ -12,6 +12,12 @@ export class DB {
         this._store = new Map()
     }
 
+    *[Symbol.iterator]() {
+        for (const item of this._store.values()) {
+            yield item;
+        }
+    }
+
     toString(){
         return "JSONLD Array items: " + String(this.length())
     }

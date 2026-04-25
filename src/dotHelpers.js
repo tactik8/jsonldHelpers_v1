@@ -3,7 +3,9 @@
 
 export default {
     get,
-    set
+    set,
+    flatten,
+    expand
 };
 
 
@@ -106,11 +108,44 @@ export function set(record, path, value) {
  * Flattens
  * @param {*} record 
  */
-export function flatten(value){
+export function flatten(value) {
 
-   
+    function _flatten(path, value) {
+
+        let results = []
+
+        if (Array.isArray(value)) {
+            path = path || ""
+            let results = value.map((x, index) => _flatten(`${path}[${String(index)}]`, x))
+            return results.flat()
+        }
+
+        if(value?.["@type"] || value?.['@id']){
+            path = (path && path != "") ? path + '.' : ""
+            let results = Object.keys(value).map(k => _flatten(`${path}${k}`, value[k]))
+            return results.flat()
+        }
+
+        return [{"propertyID": path, "value": value}]
 
 
+    }
+
+    let records = _flatten("", value)
+    
+    let record = {}
+    records.forEach(x => record[x.propertyID] = x.value )
+
+    return record
+}
+
+
+export function expand(value){
+
+    let record = {}
+    Object.keys(value).forEach(k => set(record, k, value?.[k]))
+
+    return record
 }
 
 
