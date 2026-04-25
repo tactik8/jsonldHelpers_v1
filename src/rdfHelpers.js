@@ -64,17 +64,17 @@ export function toRDF(value, annotation) {
         // handle label, add to @annotation
         if (label && typeof label == "object") {
 
-            if(typeof value != "object"){
+            if (typeof value != "object") {
                 value = { "@value": value }
             }
-           
-            value['@annotation'] = {...(value?.['@annotation'] || {}), ...label}
+
+            value['@annotation'] = { ...(value?.['@annotation'] || {}), ...label }
         }
 
 
 
         // Handle if annotation
-        if(predicate == "@annotation"){
+        if (predicate == "@annotation") {
             return []
         }
 
@@ -90,7 +90,7 @@ export function toRDF(value, annotation) {
                 annotation = annotation?.['@id']
             }
             // generate
-            results = results.concat([{ subject: subject, predicate: predicate, object: value?.['@value'], label: value?.['@annotation'] || label }])
+            results = results.concat([{ subject: subject, predicate: predicate, object: value?.['@value'], label }])
             return results
         }
 
@@ -101,9 +101,9 @@ export function toRDF(value, annotation) {
             value['@id'] = value?.['@id'] || '_:' + uuidv4()
 
             // 
-            let newRdf = { subject: subject, predicate: predicate, object: value?.['@id'], label: value?.['@annotation'] || label }
+            let newRdf = { subject: subject, predicate: predicate, object: value?.['@id'], label }
             results = results.concat([newRdf])
-            results = results.concat(Object.keys(value).map(k => _toRDF(value?.["@id"], k, value?.[k], value?.['@annotation'] || label)))
+            results = results.concat(Object.keys(value).map(k => _toRDF(value?.["@id"], k, value?.[k], label)))
             return results.flat()
         }
 
@@ -117,9 +117,9 @@ export function toRDF(value, annotation) {
     let results = []
 
     // Handle annotations
-    if(annotation){
+    if (annotation) {
         let flatAnnotations = flattenJson(annotation)
-         if(flatAnnotations.length > 1){
+        if (flatAnnotations.length > 1) {
             results = results.concat(flatAnnotations.slice(1))
         }
         annotation = flatAnnotations?.[0]
@@ -165,23 +165,26 @@ export function fromRDF(value) {
 
         // if label / annotation
         if (v.label) {
-            obj = {
-                "@value": obj,
-                "@annotation": v?.label
+
+            if (!obj?.['@id']) {
+                obj = {
+                    "@value": obj
+                }
             }
+            obj["@annotation"] = v?.label
         }
 
         // Set property id. Set to @value if label present
-        console.log('rr', record)
         record[v.predicate] = record?.[v.predicate] || []
         record[v.predicate] = Array.isArray(record[v.predicate]) ? record[v.predicate] : [record[v.predicate]]
         record[v.predicate].push(obj)
+
+
     }
 
     //  
     let records = [...m.values()]
     records.forEach(x => x['@id'] = Array.isArray(x?.['@id']) ? x?.['@id'][0] : x?.['@id'])
-
 
     return records
 
@@ -189,30 +192,28 @@ export function fromRDF(value) {
 
 
 
-function flattenJson(value){
+function flattenJson(value) {
 
     let results = []
-    if(Array.isArray(value)){
+    if (Array.isArray(value)) {
         results = value.map(x => flattenJson(x))
         return results.flat()
     }
 
-    if(typeof value == "object" && Object.keys(value).length > 0){
+    if (typeof value == "object" && Object.keys(value).length > 0) {
 
-        for(let k of Object.keys(value)){
+        for (let k of Object.keys(value)) {
 
             let subValues = value?.[k]
             subValues = Array.isArray(subValues) ? subValues : [subValues]
 
             let newValues = []
-            for(let v of subValues){
-                if(typeof v == "object"){
+            for (let v of subValues) {
+                if (typeof v == "object") {
 
                     v['@id'] = v?.['@id'] || '_:' + uuidv4()
-                    newValues.push({"@id": v?.['@id']})
+                    newValues.push({ "@id": v?.['@id'] })
                     results = results.concat(flattenJson(v))
-
-                    
 
                 } else {
                     newValues.push(v)
@@ -223,7 +224,8 @@ function flattenJson(value){
 
         }
 
-        return results
     }
+
+    return results
 
 }
