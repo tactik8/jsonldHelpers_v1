@@ -43,6 +43,71 @@ export default {
 
 
 
+function lt(rdfA, rdfB) {
+    // Confidence
+    let ac = rdfA?.label?.confidence || 0
+    let bc = rdfB?.label?.confidence || 0
+
+    if (ac < bc) { return true }
+    if (ac > bc) { return false }
+
+    // Date
+    let ad = rdfA?.label?.createdDate || undefined
+    let bd = rdfB?.label?.createdDate || undefined
+
+    if (ac < bc) { return true }
+    if (ac > bc) { return false }
+
+    return false
+}
+
+function gt(rdfA, rdfB) {
+    // Confidence
+    let ac = rdfA?.label?.confidence || 0
+    let bc = rdfB?.label?.confidence || 0
+
+    if (ac > bc) { return true }
+    if (ac < bc) { return false }
+
+    // Date
+    let ad = rdfA?.label?.createdDate || undefined
+    let bd = rdfB?.label?.createdDate || undefined
+
+    if (ac > bc) { return true }
+    if (ac < bc) { return false }
+
+    return false
+}
+
+
+/**
+ * Returns best rdf value
+ * @param {*} rdfRecords 
+ * @param {*} record_id 
+ * @param {*} propertyID 
+ * @param {*} date 
+ * @returns 
+ */
+function getBest(rdfRecords, record_id, propertyID, date) {
+
+    rdfRecords = Array.isArray(rdfRecords) ? rdfRecords : [rdfRecords]
+
+    rdfRecords = rdfRecords.filter(x => x?.subject == record_id && x?.predicate == propertyID)
+
+    refRecords = rdfRecords.sorted((a, b) => gt(a, b))
+
+    return refRecords[0]
+}
+
+
+
+
+
+
+
+
+
+
 export function toRDF(value, annotation) {
 
     function _toRDF(subject, predicate, value, label) {
@@ -67,10 +132,8 @@ export function toRDF(value, annotation) {
             if (typeof value != "object") {
                 value = { "@value": value }
             }
-
             value['@annotation'] = { ...(value?.['@annotation'] || {}), ...label }
         }
-
 
 
         // Handle if annotation

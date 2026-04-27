@@ -145,8 +145,10 @@ export class WebAPI extends Thing {
 }
 
 export class Action extends Thing {
-    constructor(value) {
-        super(value)
+    constructor(name, object) {
+        super()
+        this.name = name
+        this.object = object
         this.record_type = "Action"
         this.setActive()
     }
