@@ -170,7 +170,7 @@ export class Action extends Thing {
     }
 
     setFailed(error) {
-        this._record = setFailed(rthis._ecord, error)
+        this._record = setFailed(this._record, error)
     }
 
     get isPotential() {
