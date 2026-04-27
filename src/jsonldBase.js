@@ -18,11 +18,11 @@ export class DB {
         }
     }
 
-    toString(){
+    toString() {
         return "JSONLD Array items: " + String(this.length())
     }
 
-    toJSON(){
+    toJSON() {
         return JSON.stringify(this.records, null, 4)
     }
 
@@ -50,7 +50,7 @@ export class DB {
         return getRecords(this._store)
     }
 
-    getRecords(expand=false){
+    getRecords(expand = false) {
         return getRecords(this._store, undefined, false)
     }
 
@@ -64,10 +64,10 @@ export class DB {
         return flatten(value)
     }
 
-    static getValue(record, propertyID){
+    static getValue(record, propertyID) {
         return getValue(record, propertyID)
     }
-    static getValues(record, propertyID){
+    static getValues(record, propertyID) {
         return getValues(record, propertyID)
     }
 
@@ -82,7 +82,7 @@ export default {
     DB,
     clean,
     evaluate,
-    expand, 
+    expand,
     flatten,
     getValue,
     getValues,
@@ -144,21 +144,21 @@ function testClass() {
 export function testRecord(name, no = 0, depth = 1) {
 
 
-    name = String(name || "test") 
-    let item_name = name + "_" + String(no)
+    name = String(name || "test")
+
 
     let records = []
 
     for (let i = 0; i <= no; i++) {
-
+        let item_name = name + "_" + String(i)
         let record = {
             "@type": "Thing",
             "@id": "https://testrecord.com/" + item_name,
             "name": item_name
         }
 
-        if(depth > 0){
-            record.other1 = testRecord(item_name, no, depth -1)
+        if (depth > 0) {
+            record.other1 = testRecord(item_name, no, depth - 1)
         }
 
         records.push(record)
@@ -177,33 +177,33 @@ export function testRecord(name, no = 0, depth = 1) {
 // Utility
 // -----------------------------------------------------------------------
 
-function toArray(value){
+function toArray(value) {
 
     return (Array.isArray(value) && typeof value != "string") ? value : [value]
 
 }
 
 
-export function getValue(record, propertyID){
+export function getValue(record, propertyID) {
     let values = dot.get(record, propertyID)
     values = toArray(values)
     return values?.[0]
 }
 
-export function setValue(record, propertyID, value){
-    
+export function setValue(record, propertyID, value) {
+
     value = toArray(value)?.[0]
     dot.set(record, propertyID, value)
     return record
 }
 
-export function getValues(record, propertyID){
+export function getValues(record, propertyID) {
     let values = dot.get(record, propertyID)
     values = toArray(values)
     return values
 }
 
-export function setValues(record, propertyID, value){
+export function setValues(record, propertyID, value) {
     value = toArray(value)
     dot.set(record, propertyID, value)
     return record
@@ -214,7 +214,7 @@ export function setValues(record, propertyID, value){
 // Clean
 // -----------------------------------------------------------------------
 
-export function clean(value){
+export function clean(value) {
 
     return value
 }
@@ -291,10 +291,10 @@ function getRecords(store, filters, expandFlag = true) {
 
     }
 
-    if(expandFlag == true){
+    if (expandFlag == true) {
         records = expand(storeRecord, records)
     }
-    
+
 
     return records
 
@@ -515,7 +515,7 @@ function _extractCondition(record, propertyID, value) {
 export function expand(store, record) {
 
 
-    function _expand(store, record, cache){
+    function _expand(store, record, cache) {
 
         let storeRecord = _storeToMap(store)
 
@@ -528,11 +528,11 @@ export function expand(store, record) {
         }
 
         let newRecord = cache.get(record?.['@id'])
-        if(newRecord){
-            return { "@id": newRecord?.["@id"]} 
+        if (newRecord) {
+            return { "@id": newRecord?.["@id"] }
         }
 
-        
+
         newRecord = getRecord(storeRecord, record?.['@id'], false)
         record = newRecord || record
 
@@ -541,7 +541,7 @@ export function expand(store, record) {
         for (let k of Object.keys(record)) {
             record[k] = _expand(storeRecord, record[k], cache)
         }
-        
+
 
         return record
 
