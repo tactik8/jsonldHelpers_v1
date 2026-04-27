@@ -188,31 +188,31 @@ export class Action extends Thing {
 
 
     get object() {
-        return h.getValue(this._record, "object")
+        return h.getValues(this._record, "object")
     }
     set object(value) {
-        this._record = h.setValue(this._record, "object", value)
+        this._record = h.setValues(this._record, "object", value)
     }
 
     get instrument() {
-        return h.getValue(this._record, "instrument")
+        return h.getValues(this._record, "instrument")
     }
     set instrument(value) {
-        this._record = h.setValue(this._record, "instrument", value)
+        this._record = h.setValues(this._record, "instrument", value)
     }
 
     get agent() {
-        return h.getValue(this._record, "agent")
+        return h.getValues(this._record, "agent")
     }
     set agent(value) {
-        this._record = h.setValue(this._record, "agent", value)
+        this._record = h.setValues(this._record, "agent", value)
     }
 
     get result() {
-        return h.getValue(this._record, "result")
+        return h.getValues(this._record, "result")
     }
     set result(value) {
-        this._record = h.setValue(this._record, "result", value)
+        this._record = h.setValues(this._record, "result", value)
     }
 
     get actionStatus() {
@@ -281,7 +281,7 @@ function setPotential(record) {
     h.setValue(record, 'actionStatus', 'PotentialActionStatus')
     h.setValue(record, 'timeStart', undefined)
     h.setValue(record, 'timeEnd', undefined)
-    h.setValue(record, 'result', undefined)
+    h.setValues(record, 'result', undefined)
     h.setValue(record, 'error', undefined)
     return record
 }
@@ -299,7 +299,7 @@ function setCompleted(record, result) {
     h.setValue(record, 'actionStatus', 'CompletedActionStatus')
     h.setValue(record, 'timeStart', h.getValue(record, 'timeStart') || new Date())
     h.setValue(record, 'timeEnd', new Date())
-    h.setValue(record, 'result', result)
+    h.setValues(record, 'result', result)
     return record
 }
 
