@@ -203,7 +203,7 @@ export function getValues(record, propertyID){
     return values
 }
 
-export function setValues(value){
+export function setValues(record, propertyID, value){
     value = toArray(value)
     dot.set(record, propertyID, value)
     return record
