@@ -74,4 +74,4 @@ async function test2(){
     console.log(JSON.stringify(action, null, 4))
 }
 
-// await test2()
+await test2()

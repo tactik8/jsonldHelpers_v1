@@ -51,14 +51,22 @@ async function apiGet(headers, baseUrl, path, params) {
 
     action.object = params
 
+
+
     try {
 
+
+
+        params = JSON.parse(JSON.stringify(params || {}, null, 4))
+
+        params.filter = JSON.stringify(params?.filter || {}, null, 4)
 
 
         let url = appendPath(baseUrl, path, params)
 
         let baseHeaders = {
           
+            
         }
 
         let options = {
@@ -138,9 +146,13 @@ async function apiDelete(headers, baseUrl, path, params) {
 
     try {
 
+        params = JSON.parse(JSON.stringify(params || {}, null, 4))
+
+        params.filter = JSON.stringify(params?.filter || {}, null, 4)
+
         let url = appendPath(baseUrl, path, params)
 
-         let baseHeaders = {}
+        let baseHeaders = {}
 
         let options = {
             "headers": { ...(headers || {}), ...baseHeaders},
@@ -152,7 +164,13 @@ async function apiDelete(headers, baseUrl, path, params) {
         if (response.status >= 300) {
             action.setFailed(response.statusText)
             return action
+
         }
+
+
+
+
+
 
         let result = await response.json()
 
@@ -180,9 +198,10 @@ async function apiTest(headers, baseUrl, path){
 
     let action = new things.Action()
 
-    let params = {"@id": record['@id']}
+    let params = {"filter": {"@id": record['@id']}}
 
     let a
+
 
     // Step 1 Delete record to ensure fresh start
     a = await apiDelete(headers, baseUrl, path, params)
@@ -208,11 +227,11 @@ async function apiTest(headers, baseUrl, path){
         action.setFailed('Error step3 get record')
         return action.record
     }
-    if(a.result?.['@id'] != record?.['@id']){
-        console.log('aa', a.result)
+    if(a.result[0]?.['@id'] != record?.['@id']){
          action.setFailed('Error step3 got wrong record')
         return action.record
     }
+
 
     // Step 4 Delete record to ensure fresh start
      a = await apiDelete(headers, baseUrl, path, params)
@@ -236,7 +255,7 @@ async function apiTest(headers, baseUrl, path){
 
 
     action.setCompleted()
-    return action.record()
+    return action.record
 }
 
 
