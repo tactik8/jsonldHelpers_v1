@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import dot from './dotHelpers.js'
-
+import * as recordIDHelpers from './recordIdHelpers.js'
 
 /**
  * Database for storing jsonld records
@@ -171,6 +171,68 @@ export function testRecord(name, no = 0, depth = 1) {
 
 
 
+
+/**
+ * Replace record_ids by standardized record_id. Sets permanent id if _:
+ * @param {*} value 
+ * @returns 
+ */
+export function clean(value, baseUrl) {
+
+    try {
+        JSON.parse(JSON.stringify(value))
+    } catch (err){
+
+    }
+
+
+    value = setTempID(value)
+
+    let flatRecords = flatten(value)
+
+    let replacements = []
+
+    // Get combinations of replacer, replacees
+    for(let f of flatRecords){
+
+        // Ensure id not array
+        f['@id'] = Array.isArray(f?.['@id']) ? f?.['@id'][0] : f?.['@id']
+
+        // Validate id, skip if ok
+        if(recordIDHelpers.validate(f) == true){
+            continue
+        }
+        
+
+        // Get standard id
+        let newID = recordIDHelpers.getStandardID(f, baseUrl)
+
+        if(newID && f?.['@id'] != newID){
+            let r = {
+                "replacer": newID,
+                "replacee": f?.['@id']
+            }
+            replacements.push(r)
+        }  
+
+        if(!newID && f?.['@id'].startsWith('_:')){
+            let r = {
+                "replacer": recordIDHelpers.getGenericRecordID(baseUrl),
+                "replacee": f?.['@id']
+            }
+            replacements.push(r)
+        }
+
+    }
+
+   
+    
+    // Execute replacement
+    value = replaceIds(value, replacements)
+
+    //
+    return value
+}
 
 // -----------------------------------------------------------------------
 // Utility

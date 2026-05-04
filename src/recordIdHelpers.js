@@ -1,13 +1,13 @@
 
 
 import { v4 as uuidv4 } from "uuid"
-import * as helpers from './jsonldBase.js'
 
 export default {
     get,
     set,
     validate,
-    clean
+    getGenericRecordID,
+    getStandardID
 };
 
 
@@ -25,67 +25,6 @@ const standards = {
 // -----------------------------------------------------------------------
 // Clean
 // -----------------------------------------------------------------------
-
-/**
- * Replace record_ids by standardized record_id. Sets permanent id if _:
- * @param {*} value 
- * @returns 
- */
-export function clean(value, baseUrl) {
-
-    try {
-        JSON.parse(JSON.stringify(value))
-    } catch (err){
-
-    }
-
-    value = helpers.setTempID(value)
-
-    let flatRecords = helpers.flatten(value)
-
-    let replacements = []
-
-    // Get combinations of replacer, replacees
-    for(let f of flatRecords){
-
-        // Ensure id not array
-        f['@id'] = Array.isArray(f?.['@id']) ? f?.['@id'][0] : f?.['@id']
-
-        // Validate id, skip if ok
-        if(validate(f) == true){
-            continue
-        }
-        
-
-        // Get standard id
-        let newID = getStandardID(f, baseUrl)
-
-        if(newID && f?.['@id'] != newID){
-            let r = {
-                "replacer": newID,
-                "replacee": f?.['@id']
-            }
-            replacements.push(r)
-        }  
-
-        if(!newID && f?.['@id'].startsWith('_:')){
-            let r = {
-                "replacer": getGenericRecordID(baseUrl),
-                "replacee": f?.['@id']
-            }
-            replacements.push(r)
-        }
-
-    }
-
-   
-    
-    // Execute replacement
-    value = helpers.replaceIds(value, replacements)
-
-    //
-    return value
-}
 
 /**
  * Returns a standardized record_id for a record
@@ -238,7 +177,7 @@ function getUrls(value) {
 
 }
 
-function getGenericRecordID(baseUrl) {
+export function getGenericRecordID(baseUrl) {
 
     baseUrl = standardizeUrl(baseUrl)
 

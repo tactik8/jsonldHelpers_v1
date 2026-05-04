@@ -53,7 +53,7 @@ function test() {
 
    
 
-    let r2 = recordIDHelpers.clean(r, 'https://krknapi.com')
+    let r2 = helpers.clean(r, 'https://krknapi.com')
 
     
     console.log('zz', JSON.stringify(r2, undefined, 4))
@@ -62,4 +62,16 @@ function test() {
 
 }
 
-//test()
+// test()
+
+
+async function test2(){
+
+    let apiUrl = 'http://127.0.0.1:3000/record'
+    let api = new apiClient.ApiClient(apiUrl)
+
+    let action = await api.test()
+    console.log(JSON.stringify(action, null, 4))
+}
+
+// await test2()

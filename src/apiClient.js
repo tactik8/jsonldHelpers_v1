@@ -49,12 +49,16 @@ async function apiGet(headers, baseUrl, path, params) {
     action.name = "API Get"
     action.instrument = new thing.WebAPI(baseUrl)
 
+    action.object = params
+
     try {
+
+
 
         let url = appendPath(baseUrl, path, params)
 
-         let baseHeaders = {
-            "Content-Type": "application/json"
+        let baseHeaders = {
+          
         }
 
         let options = {
@@ -93,7 +97,7 @@ async function apiPost(headers, baseUrl, path, data) {
 
     try {
 
-        let url = appendPath(baseUrl, path, params)
+        let url = appendPath(baseUrl, path, {})
 
         let baseHeaders = {
             "Content-Type": "application/json"
@@ -136,9 +140,7 @@ async function apiDelete(headers, baseUrl, path, params) {
 
         let url = appendPath(baseUrl, path, params)
 
-         let baseHeaders = {
-            "Content-Type": "application/json"
-        }
+         let baseHeaders = {}
 
         let options = {
             "headers": { ...(headers || {}), ...baseHeaders},
@@ -166,6 +168,7 @@ async function apiDelete(headers, baseUrl, path, params) {
 
 
 
+
 async function apiTest(headers, baseUrl, path){
 
     let record = {
@@ -174,6 +177,7 @@ async function apiTest(headers, baseUrl, path){
         "name": "testRecordV1"
     }
 
+
     let action = new things.Action()
 
     let params = {"@id": record['@id']}
@@ -181,45 +185,46 @@ async function apiTest(headers, baseUrl, path){
     let a
 
     // Step 1 Delete record to ensure fresh start
-    a = apiDelete(headers, baseUrl, path, params)
-    action.hasPart = action.hasPart.concat(a)
+    a = await apiDelete(headers, baseUrl, path, params)
+    action.hasPart = action.hasPart.concat(a.record)
     if((await a).isFailed){
         action.setFailed('Error step1 delete record')
-        return action
+        return action.record
     }
 
     // Step 2 Create record
-    a = apiPost(headers, baseUrl, path, record)
-    action.hasPart = action.hasPart.concat(a)
+    a = await apiPost(headers, baseUrl, path, record)
+    action.hasPart = action.hasPart.concat(a.record)
     if((await a).isFailed){
         action.setFailed('Error step2 create record')
-        return action
+        return action.record
     }
 
 
     // Step 3 Get record
-     a = apiGet(headers, baseUrl, path, params)
-    action.hasPart = action.hasPart.concat(a)
+     a = await apiGet(headers, baseUrl, path, params)
+    action.hasPart = action.hasPart.concat(a.record)
     if((await a).isFailed){
         action.setFailed('Error step3 get record')
-        return action
+        return action.record
     }
     if(a.result?.['@id'] != record?.['@id']){
+        console.log('aa', a.result)
          action.setFailed('Error step3 got wrong record')
-        return action
+        return action.record
     }
 
     // Step 4 Delete record to ensure fresh start
-     a = apiDelete(headers, baseUrl, path, params)
-    action.hasPart = action.hasPart.concat(a)
+     a = await apiDelete(headers, baseUrl, path, params)
+    action.hasPart = action.hasPart.concat(a.record)
     if((await a).isFailed){
         action.setFailed('Error step4 delete record')
-        return action
+        return action.record
     }
 
     // Step 5 get record
-      a = apiGet(headers, baseUrl, path, params)
-    action.hasPart = action.hasPart.concat(a)
+      a = await apiGet(headers, baseUrl, path, params)
+    action.hasPart = action.hasPart.concat(a.record)
     if((await a).isFailed){
         action.setFailed('Error step5 get record')
         return action
@@ -231,7 +236,7 @@ async function apiTest(headers, baseUrl, path){
 
 
     action.setCompleted()
-    return action.record
+    return action.record()
 }
 
 
@@ -240,11 +245,17 @@ async function apiTest(headers, baseUrl, path){
 
 function appendPath(baseUrl, path, params) {
     const url = new URL(baseUrl);
+    path = path || ""
     url.pathname = (url.pathname + "/" + path).replace(/\/+/g, "/");
+
+    if(url.pathname.endsWith('/')){
+        url.pathname = url.pathname.slice(0, url.pathname.length -1)
+    }
 
     if(params){
         url.search = new URLSearchParams(params).toString();
     }
 
+    console.log('pp', url.href)
     return url.href;
 }
