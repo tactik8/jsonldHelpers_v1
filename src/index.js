@@ -1,8 +1,9 @@
-import * as helpers from './jsonldBase.js';
+import jsonldBase, * as helpers from './jsonldBase.js';
 import * as dot from './dotHelpers.js';
 import * as thing from './things.js'
 import * as apiClient from './apiClient.js'
 import * as rdf from './rdfHelpers.js'
+import * as recordIDHelpers from './recordIdHelpers.js'
 
 
 export * from './jsonldBase.js'
@@ -11,13 +12,14 @@ export * from './things.js'
 export * from './apiClient.js'
 export * from './rdfHelpers.js'
 
-export default { ...helpers, ...thing, ...apiClient, ...rdf};
+export default { ...helpers, ...thing, ...apiClient, ...rdf, ...recordIDHelpers};
 
 
 
 function test() {
 
 
+    console.log('test')
     let r = {
 
         "@context": "https://schema.org/",
@@ -34,7 +36,6 @@ function test() {
             {
                 "@context": "https://schema.org/",
                 "@type": "Thing",
-                "@id": "https://testapi.com/thing2",
                 "name": "thing2",
                 "url": "https://www.test.com/thing/thing2"
             },
@@ -49,21 +50,16 @@ function test() {
     }
 
 
-    let annotation = {
-        "og:source": "some system",
-        "og:table": "some table",
-        "og:other": {
-            "og:other2": "some other2"
-        }
-    }
 
-    let db = new rdf.RdfDB()
-    db.post(r, annotation)
+   
 
-    let r2 = db.getRecord()
-    console.log(JSON.stringify(r2, undefined, 4))
+    let r2 = recordIDHelpers.clean(r, 'https://krknapi.com')
+
+    
+    console.log('zz', JSON.stringify(r2, undefined, 4))
     
     
 
 }
 
+//test()

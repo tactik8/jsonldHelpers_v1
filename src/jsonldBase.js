@@ -80,14 +80,14 @@ export class DB {
 
 export default {
     DB,
-    clean,
     evaluate,
     expand,
     flatten,
     getValue,
     getValues,
     setValue,
-    setValues
+    setValues,
+    setTempID
 }
 
 
@@ -135,8 +135,7 @@ function testClass() {
     let db = new JsonldDB()
     db.post(record)
 
-    console.log('size', db.length())
-    console.log('r', db.records)
+
     return db.records
 
 }
@@ -210,14 +209,6 @@ export function setValues(record, propertyID, value) {
 }
 
 
-// -----------------------------------------------------------------------
-// Clean
-// -----------------------------------------------------------------------
-
-export function clean(value) {
-
-    return value
-}
 
 // -----------------------------------------------------------------------
 // Array
@@ -556,45 +547,82 @@ export function expand(store, record) {
 
 export function flatten(record) {
 
-    let records = []
 
-    if (Array.isArray(record)) {
-        records = record.map(x => flatten(x))
+    function _flatten(record) {
+
+        let records = []
+
+        if (Array.isArray(record)) {
+            records = record.map(x => flatten(x))
+            records = records.flat()
+            return records
+        }
+
+        if (!record?.['@id'] && !record?.['@type']) {
+            return []
+        }
+
+        for (let k of Object.keys(record)) {
+            if (k == "@id") {
+                continue
+            }
+
+            let values = record[k]
+            values = Array.isArray(values) ? values : [values]
+
+            record[k] = []
+            for (let v of values) {
+                if (v?.["@id"]) {
+                    record[k].push({ "@id": v?.['@id'] })
+                } else {
+                    record[k].push(v)
+                }
+                records.push(flatten(v))
+            }
+        }
+        records = [record].concat(records)
         records = records.flat()
+
+        // Remove values with only @id
+        records = records.filter(x => Object.keys(x).pop('@id').length > 0)
+
         return records
     }
 
-    if (!record?.['@id'] && !record?.['@type']) {
-        return []
+    try {
+        record = JSON.parse(JSON.stringify(record))
+    } catch (err) {
+
     }
 
-    for (let k of Object.keys(record)) {
-        if (k == "@id") {
-            continue
-        }
-
-        let values = record[k]
-        values = Array.isArray(values) ? values : [values]
-
-        record[k] = []
-        for (let v of values) {
-            if (v?.["@id"]) {
-                record[k].push({ "@id": v?.['@id'] })
-            } else {
-                record[k].push(v)
-            }
-            records.push(flatten(v))
-        }
-    }
-    records = [record].concat(records)
-    records = records.flat()
-
-    // Remove values with only @id
-    records = records.filter(x => Object.keys(x).pop('@id').length > 0)
-
-    return records
+    return _flatten(record)
 
 }
+
+
+
+/**
+ * Fill in missing @id
+ * @param {*} value 
+ * @returns 
+ */
+export function setTempID(value) {
+
+    if (Array.isArray(value)) {
+        return value.map(x => assignId(x))
+    }
+
+    if (!value?.['@id'] && !value?.['@type']) {
+        return value
+    }
+
+    for (let k of Object.keys(value)) {
+        value['@id'] = value?.["@id"] || "_:" + uuidv4()
+        value[k] = assignId(value[k])
+    }
+    return value
+}
+
 
 
 /**
@@ -626,8 +654,38 @@ function assignId(value) {
  * @param {*} idsMap 
  * @returns 
  */
-function replaceIds(value, idsMap) {
+export function replaceIds(value, idsMap) {
 
+
+    function _replaceIds(value, idsMap) {
+
+        if (Array.isArray(value)) {
+            return value.map(x => replaceIds(x, idsMap))
+        }
+
+        if (!value?.['@id']) {
+            return value
+        }
+
+        // Check if a replacer value exist for the current @id
+        let replacee = value?.['@id']
+        let replacer = idsMap.get(replacee)
+
+        if (replacer) {
+            value['@id'] = replacer
+        }
+
+        // iterate keys
+        for (let k of Object.keys(value)) {
+            value[k] = replaceIds(value?.[k], idsMap)
+        }
+
+
+
+
+        return value
+
+    }
     // Convert to map if not already
     if (!(idsMap instanceof Map)) {
         let newIdsMap = new Map()
@@ -636,24 +694,7 @@ function replaceIds(value, idsMap) {
         idsMap = newIdsMap
     }
 
-
-    if (Array.isArray(value)) {
-        return value.map(x => changeIds(x, ids))
-    }
-
-    if (!value?.['@id']) {
-        return value
-    }
-
-    // Check if a replacer value exist for the current @id
-    let replacee = value?.['@id']
-    let replacer = idsMap.get(replacee)
-
-    if (replacer) {
-        value['@id'] = replacer
-    }
-
-    return value
+    return _replaceIds(value, idsMap)
 
 }
 

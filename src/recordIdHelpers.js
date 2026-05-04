@@ -1,11 +1,13 @@
 
 
 import { v4 as uuidv4 } from "uuid"
+import * as helpers from './jsonldBase.js'
 
 export default {
     get,
     set,
-    validate
+    validate,
+    clean
 };
 
 
@@ -20,6 +22,70 @@ const standards = {
 
 
 
+// -----------------------------------------------------------------------
+// Clean
+// -----------------------------------------------------------------------
+
+/**
+ * Replace record_ids by standardized record_id. Sets permanent id if _:
+ * @param {*} value 
+ * @returns 
+ */
+export function clean(value, baseUrl) {
+
+    try {
+        JSON.parse(JSON.stringify(value))
+    } catch (err){
+
+    }
+
+    value = helpers.setTempID(value)
+
+    let flatRecords = helpers.flatten(value)
+
+    let replacements = []
+
+    // Get combinations of replacer, replacees
+    for(let f of flatRecords){
+
+        // Ensure id not array
+        f['@id'] = Array.isArray(f?.['@id']) ? f?.['@id'][0] : f?.['@id']
+
+        // Validate id, skip if ok
+        if(validate(f) == true){
+            continue
+        }
+        
+
+        // Get standard id
+        let newID = getStandardID(f, baseUrl)
+
+        if(newID && f?.['@id'] != newID){
+            let r = {
+                "replacer": newID,
+                "replacee": f?.['@id']
+            }
+            replacements.push(r)
+        }  
+
+        if(!newID && f?.['@id'].startsWith('_:')){
+            let r = {
+                "replacer": getGenericRecordID(baseUrl),
+                "replacee": f?.['@id']
+            }
+            replacements.push(r)
+        }
+
+    }
+
+   
+    
+    // Execute replacement
+    value = helpers.replaceIds(value, replacements)
+
+    //
+    return value
+}
 
 /**
  * Returns a standardized record_id for a record
@@ -52,8 +118,43 @@ export function get(value, baseUrl) {
 
 }
 
+
+
 /**
- * Set record id
+ * Returns a standardized record_id for a record
+ * @param {*} value 
+ * @param {*} baseUrl 
+ * @returns 
+ */
+export function getStandardID(value, baseUrl) {
+
+    if (!value || !value?.['@type']) {
+        return undefined
+    }
+
+    let record_types = getRecordTypes(value)
+    for (let record_type of record_types) {
+
+        let idType = standards?.[record_type]
+
+        if (idType == "url") {
+            return getIdBasedOnUrl(value?.['@type'], getUrls(value))
+        }
+
+        if (idType == "domain") {
+            return getIdBasedOnDomain(record_type, getUrls(value))
+        }
+
+    }
+
+    return undefined
+
+}
+
+
+
+/**
+ * Set standardized record id to record and sub values
  * @param {*} value 
  * @param {*} baseUrl 
  */
@@ -79,7 +180,7 @@ export function set(value, baseUrl) {
 
 
 /**
- * Validates if a record has ap roper record_id
+ * Validates if a record has a proper record_id
  * @param {*} value 
  * @param {*} baseUrl 
  * @returns bool
@@ -99,7 +200,7 @@ export function validate(value, baseUrl) {
     }
 
     // Check if valid url
-    return standardizeUrl(value, baseUrl) == currentRecordID
+    return standardizeUrl(value?.['@id'], baseUrl) == currentRecordID
 
 }
 
