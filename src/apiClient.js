@@ -166,7 +166,7 @@ async function apiDelete(headers, baseUrl, path, params) {
 
 
 
-async function test(headers, baseUrl, path){
+async function apiTest(headers, baseUrl, path){
 
     let record = {
         "@type": "Thing",
