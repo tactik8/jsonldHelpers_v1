@@ -11,6 +11,11 @@ for development continuous :
 npx nodemon index.js
 ```
 
+for testing :
+```
+npm test
+```
+
 ## Build
 for packaging:
 ```

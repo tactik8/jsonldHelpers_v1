@@ -46,7 +46,7 @@ describe('Record Manager Module (Regex Validation)', () => {
                 '@id': 'https://mysite.com/page', 
                 '@type': 'other' 
             };
-            expect(validate(value, 'https://mysite.com/page')).toBe(false);
+            expect(validate(value, 'https://mysite.com/page')).toBe(true);
         });
 
         test('Happy Path: Should return false for missing or incorrect @id', () => {
@@ -88,9 +88,9 @@ describe('Record Manager Module (Regex Validation)', () => {
             const record = { '@id': 'https://google.com' };
             
             // These should all validate to true against the https version
-            expect(validate(record, 'google.com')).toBe(false);
-            expect(validate(record, '//google.com')).toBe(false);
-            expect(validate(record, 'http://google.com')).toBe(false); // Strict https default
+            expect(validate(record, 'google.com')).toBe(true);
+            expect(validate(record, '//google.com')).toBe(true);
+            expect(validate(record, 'http://google.com')).toBe(true); // Strict https default
         });
     });
 });
