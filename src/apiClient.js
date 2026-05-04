@@ -31,7 +31,7 @@ export class ApiClient {
     }
 
     async test(path){
-        return await apiapiTest(this.headers, this.baseUrl, path)
+        return await apiTest(this.headers, this.baseUrl, path)
     }
 
 
