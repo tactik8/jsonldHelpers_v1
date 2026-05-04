@@ -90,6 +90,14 @@ export class Thing {
         this._record = h.setValue(this._record, "sameAs", value)
     }
 
+
+    get hasPart() {
+        return h.getValues(this._record, "hasPart")
+    }
+    set hasPart(value) {
+        this._record = h.setValues(this._record, "hasPart", value)
+    }
+
     // Static
 
     static get baseUrl() {
@@ -315,7 +323,7 @@ function setFailed(record, error) {
 
 
 
-export default  {
+export default {
     Thing,
     Action,
     WebAPI,
