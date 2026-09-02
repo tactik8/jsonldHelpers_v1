@@ -108,6 +108,90 @@ export function toNumber(value) {
 }
 
 
+/**
+ * Return true if typeof is string
+ * @param {*} value 
+ */
+export function isString(value) {
+    return typeof value == 'string'
+}
+
+/**
+ * Return true if typeof is string
+ * @param {*} value 
+ */
+export function isNotString(value) {
+    return !isString(value)
+}
+
+/**
+ * Convert to string
+ * @param {*} value 
+ */
+export function toString(value){
+    if(value == undefined || value == null){
+        return ""
+    }
+
+    if(isString(value)){
+        return value
+    }
+
+    if(h.isValid(value)){
+        return h.exportToString(value)
+    }
+
+    if(isDate(value)){
+        return value.toLocaleString() 
+    }
+    if(h.isArray(value)){
+        let content = `Array of ${value.length} items.\n--------------------\n`
+        let i =0
+        let max = value.length -1
+        max = max > 8 ? 8 : max
+        for(let i =0; i < max; i ++){
+            content += toString(value[i]) + '\n'
+        }
+        return content
+    }
+
+    return String(value)
+
+}
+
+
+/**
+ * Returns true if value is Date
+ * @param {*} value 
+ * @returns 
+ */
+export function isDate(value) {
+    return value instanceof Date && !Number.isNaN(value.getTime());
+}
+
+/**
+ * Returns true if value is not date
+ * @param {*} value 
+ * @returns 
+ */
+export function isNotDate(value) {
+    return !isDate(value)
+}
+
+export function toDate(value) {
+
+    if (isDate(value)) {
+        return value
+    }
+
+    value = new Date(value)
+    value = isDate(value) ? value : undefined
+
+    return value
+
+}
+
+
 
 /**
  * Returns true if array

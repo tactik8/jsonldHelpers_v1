@@ -3,7 +3,7 @@
  * 
  * @param {*} value 
  */
-export function toString(value) {
+export function exportToString(value) {
 
 
     if (Array.isArray(value)) {
