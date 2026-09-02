@@ -1,9 +1,12 @@
 
 
-import { jsonldBase as h} from '../jsonldBase.js'
+import { jsonldBase as h } from '../jsonldBase.js'
 
 
-
+/**
+ * Returns random uuidv4
+ * @returns 
+ */
 export function randomUUID() {
     // Use native Web Crypto / Node.js 16.7+ API if available
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -29,6 +32,83 @@ export function randomUUID() {
 }
 
 
+
+
+
+/**
+ * Returns true if record or property is undefined or null
+ * @param {*} record 
+ * @param {*} propertyID 
+ * @returns 
+ */
+export function isNull(record, propertyID = undefined) {
+
+
+    if (record == undefined || record == null) {
+        return true
+    }
+
+    // Evalue record as not null if no propertyID given
+    if (propertyID == undefined || propertyID == null) {
+        return false
+    }
+
+    // 
+    let values = getValues(record, propertyID)
+
+    return values.length == 0
+
+}
+
+/**
+ * Returns true if record or property is not undefined or null
+ * @param {*} record 
+ * @param {*} propertyID 
+ * @returns 
+ */
+export function isNotNull(record, propertyID = undefined) {
+
+    return !isNull(record, propertyID)
+}
+
+
+/**
+ * Return true if value is anumber
+ * @param {*} value 
+ */
+export function isNumber(value) {
+
+    value = Number(value)
+    return !isNaN(value)
+
+}
+
+/**
+ * Return true if value is anumber
+ * @param {*} value 
+ */
+export function isNotNumber(value) {
+
+    return !isNumber(value)
+
+}
+
+/**
+ * Ensure a value is a number
+ * @param {*} value 
+ * @returns 
+ */
+export function toNumber(value) {
+    value = Number(value)
+
+    if (!isNaN(value)) {
+        return value
+    }
+    return undefined
+}
+
+
+
 /**
  * Returns true if array
  * @param {*} value 
@@ -45,11 +125,11 @@ export function isArray(value) {
  */
 export function toArray(value) {
 
-    let result = Array.isArray(value) ? value : [value]
+    value = isArray(value) ? value : [value]
 
-    result = result.filter(x => x !== undefined)
+    value = value.filter(x => x != undefined)
 
-    return result
+    return value
 
 }
 
@@ -59,11 +139,10 @@ export function toArray(value) {
  * @returns 
  */
 export function toSingle(value) {
-    
+
     value = toArray(value)
 
     return value?.[0] ?? undefined
-    
 
 }
 
@@ -75,8 +154,8 @@ export function toSingle(value) {
 export function _utilGetId(record_or_id) {
 
     // error handling
-    if(record_or_id === undefined){ return undefined }
-    if(record_or_id === null){ return undefined }
+    if (record_or_id === undefined) { return undefined }
+    if (record_or_id === null) { return undefined }
 
 
     //
@@ -85,34 +164,6 @@ export function _utilGetId(record_or_id) {
     return value ?? undefined
 }
 
-/**
- * 
- * @param {*} value 
- */
-export function toString(value){
 
 
-    if(Array.isArray(value)){
-        let content = `Array (${value.length})\n--------------------------\n`
-        value.forEach(x => content += toString(x) + '\n')
-        return content
-    }
 
-    if(h.record_type(value) == "ListItem"){
-        return `${h.getValue(value, 'position')} - ${h.getValue(value, 'item.name') || h.getValue(value, 'item.@id')}`
-    }
-
-    if(h.record_type(value) == "ItemList"){
-        let listItems = h.getValues(value, 'itemListElement')
-          let content = `ItemList${h.getValue(value, 'name') || h.getValue(value, '@id')} (${listItems.length})\n--------------------------\n`
-        listItems.forEach(x => content += toString(x) + '\n')
-        return content
-    }
-
-    if(h.record_type(value) == "Action"){
-         return `${h.getValue(value, 'name')} ${h.getValue(value, 'name') || h.getValue(value, '@id')} - ${h.getValue(value, 'actionStatus')}`
-    }
-
-    return h.getValue(value, 'name') || h.getValue(value, '@id')
-
-}

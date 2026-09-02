@@ -7,16 +7,15 @@ import { _h } from '../src/index.js'
 function test() {
 
 
+    let items = []
+    for(let i=0; i < 10; i++){
+        items.push(_h.records.thing(1))
+    }
 
+    items[2].test = "test1"
+    items = _h.dedupe(items)
 
-    let l = _h.records.ItemList(10)
-
-
-    let filter = {'item.@type': "Thing2"}
-    let items = _h.things.ItemList.search(l, filter, 2, 2, 'item.name', 1)
-
-    console.log('i', _h.toString(items))
-    
+        console.log(items)
     
 
 

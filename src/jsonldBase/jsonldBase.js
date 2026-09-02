@@ -9,6 +9,8 @@ import * as memoryDb from './src/memoryDb.js'
 import * as objectHelpers from './src/objectHelpers.js'
 import * as propertyHelpers from './src/propertyHelpers.js'
 import * as utilitiesHelpers from './src/utilitiesHelpers.js'
+import * as listHelpers from './src/listHelpers.js'
+import * as toStringHelpers from './src/toStringHelpers.js'
 
 export const jsonldBase = { 
   dot, 
@@ -19,7 +21,9 @@ export const jsonldBase = {
   ...memoryDb, 
   ...objectHelpers, 
   ...propertyHelpers,
-  ...utilitiesHelpers 
+  ...utilitiesHelpers,
+  ...listHelpers,
+  ...toStringHelpers
 }
 
 

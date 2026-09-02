@@ -1,8 +1,7 @@
 
 
 
-
-import { jsonldBase as h} from '../jsonldBase.js'
+import { jsonldBase as h } from '../jsonldBase.js'
 
 
 import * as recordIDHelpers from '../../recordIdHelpers/recordIdHelpers.js'
@@ -42,14 +41,15 @@ export function clean(value, baseUrl) {
         return value
     }
 
+    // Clone
     try {
-        clone(value)
-    } catch (err) {
+        value = clone(value)
+    } catch (err) { }
 
-    }
-
+    // Set id
     value = setTempID(value)
 
+    // Flatten
     let flatRecords = h.flatten(value)
 
     // Order keys
@@ -94,6 +94,8 @@ export function clean(value, baseUrl) {
     // Execute replacement
     value = h.replaceIds(value, replacements)
 
+
+
     //
     return value
 }
@@ -114,3 +116,45 @@ export function clone(value) {
 
     return value
 }
+
+
+/**
+ * Merges two jsonld values, skips duplicates by default
+ * @param {*} value1 
+ * @param {*} value2 
+ * @param {*} skipDuplicates (default true)
+ */
+export function merge(item1, item2, skipDuplicates = true) {
+
+
+    let keys = []
+    keys = keys.concat(Object.keys(item1))
+    keys = keys.concat(Object.keys(item2))
+    keys = [...new Set(keys)]
+
+
+    let mergedRecord = {
+        "@id": item1?.['@id'] || item2?.['@id']
+    }
+
+    for (let k of keys) {
+        if (k == "@id") {
+            continue
+        }
+        let values1 = h.toArray(item1?.[k] || undefined)
+        let values2 = h.toArray(item2?.[k] || undefined)
+        let values = values1.concat(values2)
+
+        if (skipDuplicates == true) {
+            values = h.dedupe(values)
+        }
+        mergedRecord[k] = values
+
+    }
+
+    return mergedRecord
+
+}
+
+
+

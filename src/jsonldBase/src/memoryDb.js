@@ -1,7 +1,7 @@
 
 
 import { dotHelpers as dot } from '../../dotHelpers/dotHelpers.js'
-import { jsonldBase as h} from '../jsonldBase.js'
+import { jsonldBase as h } from '../jsonldBase.js'
 
 
 export class DB {
@@ -44,6 +44,20 @@ export class DB {
 
     post(value) {
         return this.set(value)
+    }
+
+    patch(value, skipDuplicates=true){
+        let records = h.flatten(value)
+
+        for (let r of records) {
+            let currentRecord = getRecord(this._store, h.record_id(r))
+
+            this._store = patchRecord(this._store, r, skipDuplicates)
+            if (!h.isEqual(currentRecord, r)) {
+                this.broadcast(h.record_id(r))
+            }
+        }
+        return value
     }
 
     delete(record_id) {
@@ -249,6 +263,51 @@ export function postRecord(store, value) {
     return store
 
 }
+
+
+/**
+ * 
+ */
+export function patchRecord(store, value, skipDuplicates = true) {
+
+    value = h.clone(value)
+
+    // Assign Id. if missing or wrong
+    value = h.assignId(value)
+
+    // flatten
+    value = h.flatten(value)
+
+    // convert store to map
+    let storeRecord = _storeToMap(store)
+
+    // Add to store
+    for (let v of value) {
+
+        // Compare with existing value
+        let storeValue = storeRecord.store.get(v?.['@id'])
+
+        // Skip if value already exists and new value doesn't have properties
+        // Prevents overwriting current record with simple link
+        if (storeValue && h.isRef(v)) {
+            continue
+        }
+
+        // combine values
+        v = h.merge(v, storeValue, skipDuplicates)
+
+
+        // Store value
+        storeRecord.store.set(v?.['@id'], v)
+    }
+
+    // Convert back to array if required
+    store = h._storeToOriginal(storeRecord)
+
+    return store
+
+}
+
 
 /**
  * Retrieves a copy of the record from db
