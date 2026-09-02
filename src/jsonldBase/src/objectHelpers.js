@@ -109,10 +109,12 @@ export function clone(value) {
     try {
         value = structuredClone(value)
         return value
+    } catch  {}
 
-    } catch (err) {
-
-    }
+    try {
+        value = JSON.parse(JSON.stringify(value))
+        return value
+    } catch {}
 
     return value
 }
